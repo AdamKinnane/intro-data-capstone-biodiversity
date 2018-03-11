@@ -1,0 +1,153 @@
+{\rtf1\ansi\ansicpg1252\cocoartf1561\cocoasubrtf200
+{\fonttbl\f0\fnil\fcharset0 HelveticaNeue;\f1\fswiss\fcharset0 Helvetica;}
+{\colortbl;\red255\green255\blue255;\red46\green166\blue143;\red255\green255\blue255;\red46\green166\blue143;
+}
+{\*\expandedcolortbl;;\cssrgb\c20392\c70196\c62745;\cssrgb\c100000\c100000\c100000;\cssrgb\c20392\c70196\c62745;
+}
+\margl1440\margr1440\vieww10800\viewh8400\viewkind0
+\deftab720
+\pard\pardeftab720\sl300\partightenfactor0
+
+\f0\b\fs24 \cf2 \cb3 \expnd0\expndtw0\kerning0
+BIODIVERISTY CAPSTONE PROJECT - INVESTIGATING PROTECTED SPECIES\
+PART I\
+\pard\pardeftab720\sl300\partightenfactor0
+\cf4 \cb3 \outl0\strokewidth0 \strokec4 \
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\pardirnatural\partightenfactor0
+
+\f1\b0 \cf0 \cb1 \kerning1\expnd0\expndtw0 \outl0\strokewidth0 import codecademylib\
+import pandas as pd\
+from matplotlib import pyplot as plt\
+\
+# Loading the Data\
+species = pd.read_csv('species_info.csv')\
+\
+# print species.head()\
+\
+# Inspecting the DataFrame\
+species_count = len(species)\
+\
+species_type = species.category.unique()\
+\
+conservation_statuses = species.conservation_status.unique()\
+\
+# Analyze Species Conservation Status\
+conservation_counts = species.groupby('conservation_status').scientific_name.count().reset_index()\
+\
+# print conservation_counts\
+\
+# Analyze Species Conservation Status II\
+species.fillna('No Intervention', inplace = True)\
+\
+conservation_counts_fixed = species.groupby('conservation_status').scientific_name.count().reset_index()\
+\
+# Plotting Conservation Status by Species\
+protection_counts = species.groupby('conservation_status')\\\
+    .scientific_name.count().reset_index()\\\
+    .sort_values(by='scientific_name')\
+    \
+# plt.figure(figsize=(10, 4))\
+# ax = plt.subplot()\
+# plt.bar(range(len(protection_counts)),\
+#        protection_counts.scientific_name.values)\
+# ax.set_xticks(range(len(protection_counts)))\
+# ax.set_xticklabels(protection_counts.conservation_status.values)\
+# plt.ylabel('Number of Species')\
+# plt.title('Conservation Status by Species')\
+# labels = [e.get_text() for e in ax.get_xticklabels()]\
+# print ax.get_title()\
+# plt.show()\
+\
+species['is_protected'] = species.conservation_status != 'No Intervention'\
+\
+category_counts = species.groupby(['category', 'is_protected'])\\\
+                         .scientific_name.count().reset_index()\
+  \
+# print category_counts.head()\
+\
+category_pivot = category_counts.pivot(columns='is_protected', index='category', values='scientific_name').reset_index()\
+\
+category_pivot.columns = ['category', 'not_protected', 'protected']\
+\
+category_pivot['percent_protected'] = category_pivot.protected / (category_pivot.protected + category_pivot.not_protected)\
+\
+print category_pivot.head()\
+print\
+# Contingency table\
+#         protected |  not-protected\
+# ----+------------------+------------\
+# Mammal | 30      |  146\
+# Bird   | 75      |  413\
+\
+contingency = [[30, 146],\
+    [75, 413]]\
+\
+from scipy.stats import chi2_contingency\
+\
+chi2, pval, dof, expected = chi2_contingency(contingency)\
+print 'Endangered likeliness: pval of Mammal vs Bird :\{\}'.format(pval)\
+\
+# Contingency table\
+#         protected |  not-protected\
+# ----+------------------+------------\
+# Mammal    | 30      |  146\
+# Reptile   | 5       |  73\
+\
+contingency2 = [[30, 146],\
+    [5, 73]]\
+chi2, pval_reptile_mammal, dof, expected = chi2_contingency(contingency2)\
+print 'Endangered likeliness: pval of Mammal vs Reptile :\{\}'.format(pval_reptile_mammal)\
+\pard\pardeftab720\sl300\partightenfactor0
+
+\f0\b \cf4 \cb3 \expnd0\expndtw0\kerning0
+\outl0\strokewidth0 \strokec4 \
+\
+BIODIVERISTY CAPSTONE PROJECT - INVESTIGATING PROTECTED SPECIES\
+PART II\
+
+\f1\b0 \cf0 \cb1 \kerning1\expnd0\expndtw0 \outl0\strokewidth0 \
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\pardirnatural\partightenfactor0
+\cf0 import codecademylib\
+import pandas as pd\
+from matplotlib import pyplot as plt\
+\
+species = pd.read_csv('species_info.csv')\
+species.fillna('No Intervention', inplace = True)\
+species['is_protected'] = species.conservation_status != 'No Intervention'\
+\
+observations = pd.read_csv('observations.csv')\
+print observations.head()\
+\
+species['is_sheep'] = species.common_names.apply(lambda x: 'Sheep' in x)\
+species_is_sheep = species[species.is_sheep]\
+print species.head(20)\
+\
+species_is_sheep = species[species.is_sheep]\
+print species_is_sheep\
+\
+sheep_species = species[(species.is_sheep) & (species.category == 'Mammal')]\
+print sheep_species\
+                         \
+sheep_observations = pd.merge(observations, sheep_species,	how='right')\
+print sheep_observations.head()\
+\
+obs_by_park = sheep_observations.groupby('park_name').observations.sum().reset_index()\
+print obs_by_park\
+\
+\pard\pardeftab720\sl300\partightenfactor0
+
+\f0\b \cf2 \cb3 \expnd0\expndtw0\kerning0
+PART III
+\f1\b0 \cf0 \cb1 \kerning1\expnd0\expndtw0 \
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\pardirnatural\partightenfactor0
+\cf0 \
+baseline = 15\
+\
+minimum_detectable_effect = 33\
+\
+sample_size_per_variant = 890\
+\
+yellowstone_weeks_observing = 1.755424063116371\
+\
+bryce_weeks_observing = 3.56\
+}
